@@ -10,13 +10,7 @@ export const metadata: Metadata = {
   title: "HYBE | Official Corporate Website",
   description: "HYBE Corporation - Leading global entertainment lifestyle platform company",
   generator: "v0.app",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: "cover",
-  },
+  // viewport moved to dedicated `viewport` export for Next.js compatibility
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -38,6 +32,15 @@ export const metadata: Metadata = {
     title: "HYBE",
     description: "HYBE Corporation - Leading global entertainment lifestyle platform company",
   },
+}
+
+// Keep viewport as a separate export to satisfy Next.js's generate-viewport
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({
