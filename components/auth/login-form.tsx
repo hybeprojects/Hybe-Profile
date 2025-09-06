@@ -1,13 +1,15 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Mail, Lock, Sparkles } from "lucide-react"
+import { Loader2, Mail, Lock, Sparkles, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface LoginFormProps {
   onLoginSuccess: () => void
@@ -17,23 +19,88 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [hybeId, setHybeId] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [loginState, setLoginState] = useState<"idle" | "loading" | "verifying" | "success">("idle")
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setLoginState("loading")
+    setError(null)
 
-    // Simulate login process
-    setTimeout(() => {
+    const supabase = createClient()
+
+    try {
+      // First, check if HYBE ID exists in admin profiles
+      const { data: adminProfile, error: adminError } = await supabase
+        .from("hybe_admin_profiles")
+        .select("*")
+        .eq("hybe_id", hybeId)
+        .single()
+
+      if (adminError || !adminProfile) {
+        throw new Error("Invalid HYBE ID. Please contact support.")
+      }
+
       setLoginState("verifying")
+
+      // Check if user is already registered
+      if (adminProfile.is_registered) {
+        // User exists, try to sign in with email
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: adminProfile.email || `${hybeId}@hybe.temp`,
+          password: password,
+        })
+
+        if (signInError) {
+          throw new Error("Invalid password. Please try again.")
+        }
+      } else {
+        // First time login with default password
+        if (password !== "HYBEARMY2025") {
+          throw new Error("Please use the default password: HYBEARMY2025")
+        }
+
+        // Create auth user account
+        const tempEmail = `${hybeId}@hybe.temp`
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email: tempEmail,
+          password: password,
+          options: {
+            data: {
+              hybe_id: hybeId,
+              display_name: adminProfile.display_name,
+              is_default_password: true,
+            },
+            emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
+          },
+        })
+
+        if (signUpError) {
+          throw new Error(signUpError.message)
+        }
+
+        // Update admin profile
+        await supabase
+          .from("hybe_admin_profiles")
+          .update({
+            is_registered: true,
+            email: tempEmail,
+          })
+          .eq("hybe_id", hybeId)
+      }
+
+      setLoginState("success")
       setTimeout(() => {
-        setLoginState("success")
-        setTimeout(() => {
-          onLoginSuccess()
-        }, 1000)
-      }, 2000)
-    }, 1500)
+        onLoginSuccess()
+      }, 1000)
+    } catch (err: any) {
+      setError(err.message)
+      setLoginState("idle")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const getButtonText = () => {
@@ -73,6 +140,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="hybe-id" className="flex items-center space-x-2">
                   <Mail className="h-4 w-4" />
@@ -104,6 +178,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                   disabled={isLoading}
                   className="border-primary/20 focus:border-primary"
                 />
+                <p className="text-xs text-muted-foreground">First time? Use default password: HYBEARMY2025</p>
               </div>
               <Button
                 type="submit"
@@ -119,7 +194,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            New to HYBE? <span className="text-primary hover:underline cursor-pointer">Create account</span>
+            Need help? <span className="text-primary hover:underline cursor-pointer">Contact Support</span>
           </p>
         </div>
       </div>

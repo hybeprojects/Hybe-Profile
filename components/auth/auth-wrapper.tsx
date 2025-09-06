@@ -1,20 +1,62 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { LoginForm } from "./login-form"
 import { OtpVerification } from "./otp-verification"
+import { ChangePassword } from "./change-password"
 import { Loader2, Sparkles } from "lucide-react"
+import { createBrowserClient } from "@supabase/ssr"
 
 interface AuthWrapperProps {
   onAuthSuccess: () => void
 }
 
 export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
-  const [authStep, setAuthStep] = useState<"login" | "otp" | "loading">("login")
-  const [userEmail] = useState("army@example.com") // This would come from login form
+  const [authStep, setAuthStep] = useState<"login" | "otp" | "change-password" | "loading">("login")
+  const [userEmail, setUserEmail] = useState("")
+  const [hybeId, setHybeId] = useState("")
+  const [requiresPasswordChange, setRequiresPasswordChange] = useState(false)
 
-  const handleLoginSuccess = () => {
-    setAuthStep("otp")
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (session?.user) {
+        // Check if user needs to change password
+        const { data: profile } = await supabase
+          .from("hybe_profiles")
+          .select("requires_password_change")
+          .eq("email", session.user.email)
+          .single()
+
+        if (profile?.requires_password_change) {
+          setAuthStep("change-password")
+          setUserEmail(session.user.email || "")
+        } else {
+          onAuthSuccess()
+        }
+      }
+    }
+
+    checkAuthStatus()
+  }, [])
+
+  const handleLoginSuccess = (email: string, id: string, needsPasswordChange: boolean) => {
+    setUserEmail(email)
+    setHybeId(id)
+    setRequiresPasswordChange(needsPasswordChange)
+
+    if (needsPasswordChange) {
+      setAuthStep("change-password")
+    } else {
+      setAuthStep("otp")
+    }
   }
 
   const handleOtpSuccess = () => {
@@ -23,6 +65,10 @@ export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
     setTimeout(() => {
       onAuthSuccess()
     }, 3000)
+  }
+
+  const handlePasswordChangeSuccess = () => {
+    setAuthStep("otp")
   }
 
   const handleBackToLogin = () => {
@@ -46,6 +92,17 @@ export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
           </div>
         </div>
       </div>
+    )
+  }
+
+  if (authStep === "change-password") {
+    return (
+      <ChangePassword
+        email={userEmail}
+        hybeId={hybeId}
+        onPasswordChangeSuccess={handlePasswordChangeSuccess}
+        onBack={handleBackToLogin}
+      />
     )
   }
 
