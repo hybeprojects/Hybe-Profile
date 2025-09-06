@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer"
+import { randomInt } from "crypto"
 
 // Create transporter using SMTP credentials
 const transporter = nodemailer.createTransporter({
@@ -12,7 +13,7 @@ const transporter = nodemailer.createTransporter({
 })
 
 export function generateOTP(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString()
+  return randomInt(100000, 1000000).toString().padStart(6, "0")
 }
 
 export async function sendOTPEmail(

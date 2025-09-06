@@ -1,0 +1,1 @@
+ALTER TABLE otp_codes ADD COLUMN IF NOT EXISTS failed_attempts INTEGER DEFAULT 0;
