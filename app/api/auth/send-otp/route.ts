@@ -1,10 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createServerClient } from "@/lib/supabase/server"
 import { sendOTPEmail, generateOTP } from "@/lib/email/nodemailer"
+import { rateLimiter } from "@/lib/rate-limiter"
 
 export async function POST(request: NextRequest) {
   try {
     const { hybeId } = await request.json()
+
+    const ip = request.ip ?? "127.0.0.1"
+    const { success, limit, remaining, reset } = await rateLimiter.limit(
+      `send_otp_${ip}`,
+    )
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 },
+      )
+    }
 
     const supabase = createServerClient()
 
@@ -29,6 +42,7 @@ export async function POST(request: NextRequest) {
       code: otp,
       expires_at: expiresAt.toISOString(),
       used: false,
+      failed_attempts: 0,
     })
 
     if (otpError) {
