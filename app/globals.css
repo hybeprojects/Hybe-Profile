@@ -4,51 +4,51 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color tokens to match HYBE/ARMY purple galaxy theme */
+  /* Updated color tokens to match official HYBE black/white corporate theme */
   --background: oklch(1 0 0);
-  --foreground: oklch(0.25 0 0);
+  --foreground: oklch(0.08 0 0);
   --card: oklch(0.98 0 0);
-  --card-foreground: oklch(0.25 0 0);
+  --card-foreground: oklch(0.08 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0 0);
-  --primary: oklch(0.45 0.15 285);
+  --popover-foreground: oklch(0.08 0 0);
+  --primary: oklch(0.08 0 0);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.7 0.12 285);
-  --secondary-foreground: oklch(0.25 0 0);
+  --secondary: oklch(0.9 0 0);
+  --secondary-foreground: oklch(0.08 0 0);
   --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.45 0.15 285);
-  --accent: oklch(0.7 0.12 285);
+  --muted-foreground: oklch(0.4 0 0);
+  --accent: oklch(0.45 0.15 285);
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.9 0 0);
   --input: oklch(0.96 0 0);
-  --ring: oklch(0.7 0.12 285);
-  --chart-1: oklch(0.45 0.15 285);
-  --chart-2: oklch(0.7 0.12 285);
+  --ring: oklch(0.08 0 0);
+  --chart-1: oklch(0.08 0 0);
+  --chart-2: oklch(0.45 0.15 285);
   --chart-3: oklch(0.96 0 0);
   --chart-4: oklch(1 0 0);
-  --chart-5: oklch(0.25 0 0);
+  --chart-5: oklch(0.4 0 0);
   --radius: 0.5rem;
-  --sidebar: oklch(0.96 0 0);
-  --sidebar-foreground: oklch(0.45 0.15 285);
-  --sidebar-primary: oklch(0.45 0.15 285);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.7 0.12 285);
-  --sidebar-accent-foreground: oklch(0.25 0 0);
-  --sidebar-border: oklch(0.9 0 0);
-  --sidebar-ring: oklch(0.7 0.12 285);
+  --sidebar: oklch(0.08 0 0);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(1 0 0);
+  --sidebar-primary-foreground: oklch(0.08 0 0);
+  --sidebar-accent: oklch(0.2 0 0);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.2 0 0);
+  --sidebar-ring: oklch(1 0 0);
 }
 
 .dark {
-  /* Updated dark mode colors for HYBE theme */
+  /* Updated dark mode to match HYBE's black corporate theme */
   --background: oklch(0.08 0 0);
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.12 0 0);
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.08 0 0);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.7 0.12 285);
+  --primary: oklch(0.98 0 0);
   --primary-foreground: oklch(0.08 0 0);
   --secondary: oklch(0.2 0 0);
   --secondary-foreground: oklch(0.98 0 0);
@@ -60,20 +60,20 @@
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.2 0 0);
   --input: oklch(0.2 0 0);
-  --ring: oklch(0.45 0.15 285);
-  --chart-1: oklch(0.7 0.12 285);
+  --ring: oklch(0.98 0 0);
+  --chart-1: oklch(0.98 0 0);
   --chart-2: oklch(0.45 0.15 285);
   --chart-3: oklch(0.6 0 0);
   --chart-4: oklch(0.4 0 0);
   --chart-5: oklch(0.8 0 0);
-  --sidebar: oklch(0.12 0 0);
+  --sidebar: oklch(0.08 0 0);
   --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.7 0.12 285);
+  --sidebar-primary: oklch(0.98 0 0);
   --sidebar-primary-foreground: oklch(0.08 0 0);
   --sidebar-accent: oklch(0.2 0 0);
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.2 0 0);
-  --sidebar-ring: oklch(0.45 0.15 285);
+  --sidebar-ring: oklch(0.98 0 0);
 }
 
 @theme inline {
@@ -123,5 +123,72 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Enhanced mobile optimization for HYBE corporate site */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    overscroll-behavior: none;
+  }
+
+  /* Added HYBE-specific corporate styling */
+  .hybe-corporate {
+    @apply bg-black text-white;
+  }
+
+  .hybe-logo {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Enhanced mobile-responsive utilities */
+  .mobile-container {
+    @apply w-full min-h-screen min-h-dvh overflow-x-hidden;
+  }
+
+  .mobile-safe-area {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Mobile-specific input styles */
+  input,
+  textarea,
+  select {
+    @apply text-base;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+
+  /* Prevent zoom on iOS */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Added HYBE navigation styles */
+  .hybe-nav {
+    @apply bg-black/95 backdrop-blur-sm border-b border-gray-800;
+  }
+
+  .hybe-nav-item {
+    @apply text-white hover:text-gray-300 transition-colors duration-200;
+  }
+
+  .hybe-dropdown {
+    @apply bg-black border border-gray-800 shadow-xl;
   }
 }
