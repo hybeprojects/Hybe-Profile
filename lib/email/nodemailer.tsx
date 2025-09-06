@@ -2,7 +2,7 @@ import nodemailer from "nodemailer"
 import { randomInt } from "crypto"
 
 // Create transporter using SMTP credentials
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number.parseInt(process.env.SMTP_PORT || "587"),
   secure: process.env.SMTP_PORT === "465", // true for 465, false for other ports
