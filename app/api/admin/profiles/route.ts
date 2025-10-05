@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { adminProfiles } from "@/lib/db/sqlite"
+import { NextResponse } from "next/server"
 
 export async function GET() {
   return NextResponse.json({ data: adminProfiles.list() })

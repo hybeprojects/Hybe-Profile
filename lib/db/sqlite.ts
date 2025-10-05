@@ -1,5 +1,6 @@
 import fs from "fs"
 import path from "path"
+import fs from "fs"
 
 // Attempt to load better-sqlite3. If not available (build scripts blocked), fallback to JSON store.
 let sqliteAvailable = false as boolean
