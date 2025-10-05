@@ -45,7 +45,9 @@ function readJson(): { admin_profiles: AdminProfile[] } {
   }
 }
 function writeJson(data: { admin_profiles: AdminProfile[] }) {
-  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2))
+  // map contact back to email for storage compatibility
+  const toStore = { admin_profiles: data.map((p) => ({ ...p, email: p.contact ?? null })) }
+  fs.writeFileSync(jsonPath, JSON.stringify(toStore, null, 2))
 }
 
 // SQLite implementation
