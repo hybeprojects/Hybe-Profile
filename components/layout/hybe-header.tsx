@@ -61,7 +61,8 @@ export function HybeHeader() {
           {/* Logo */}
           <h1 className="logo">
             <a href="/" className="text-2xl lg:text-3xl font-bold tracking-tight hover:opacity-80 transition-opacity">
-              !hybe
+              <Logo className="h-8 lg:h-10" />
+            <span className="sr-only">HYBE</span>
             </a>
           </h1>
 
