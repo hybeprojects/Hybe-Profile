@@ -43,7 +43,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       setLoginState("success")
       toast.success("Login successful")
       setTimeout(() => {
-        onLoginSuccess(json.email || "", json.hybeId, json.requiresPasswordChange)
+        onLoginSuccess(json.contact || "", json.hybeId, json.requiresPasswordChange)
       }, 800)
     } catch (err: any) {
       toast.error(err.message || "Login failed")
