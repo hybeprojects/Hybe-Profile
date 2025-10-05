@@ -70,12 +70,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     <div className="mobile-container mobile-safe-area flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-accent/20 p-4 sm:p-6">
       <div className="w-full max-w-md space-y-4 sm:space-y-6">
         <div className="text-center space-y-2">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse" />
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              HYBE ACCOUNT
-            </h1>
-            <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse" />
+          <div className="flex flex-col items-center justify-center mb-4">
+            <Logo className="h-10 w-auto mb-3" />
+            <div className="flex items-center justify-center space-x-2">
+              <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse" />
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">HYBE ACCOUNT</h1>
+              <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse" />
+            </div>
           </div>
           <p className="text-sm sm:text-base text-muted-foreground px-4">Your digital fan passport awaits</p>
         </div>
