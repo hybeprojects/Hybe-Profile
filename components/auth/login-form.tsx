@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Mail, Lock, Sparkles, AlertCircle, Shield } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { toast } from "sonner"
 
 interface LoginFormProps {
   onLoginSuccess: (email: string, hybeId: string, needsPasswordChange: boolean) => void
@@ -40,11 +40,12 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       }
 
       setLoginState("success")
+      toast.success("Login successful")
       setTimeout(() => {
         onLoginSuccess(json.email || "", json.hybeId, json.requiresPasswordChange)
       }, 800)
     } catch (err: any) {
-      setError(err.message)
+      toast.error(err.message || "Login failed")
       setLoginState("idle")
     } finally {
       setIsLoading(false)
@@ -87,12 +88,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <Alert variant="destructive" className="text-sm">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
 
               <div className="space-y-2">
                 <Label htmlFor="hybe-id" className="flex items-center space-x-2 text-sm">
