@@ -1,6 +1,9 @@
 "use client"
 
+"use client"
+
 import { useState } from "react"
+import { Logo } from "@/components/ui/logo"
 import { Button } from "@/components/ui/button"
 import { Menu, X, ChevronDown } from "lucide-react"
 
