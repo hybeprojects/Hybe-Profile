@@ -109,7 +109,10 @@ export const adminProfiles = {
   list(): AdminProfile[] {
     if (sqliteAvailable) {
       const d = ensureSqlite()
-      if (d) return d.prepare("SELECT * FROM admin_profiles ORDER BY created_at DESC").all() as AdminProfile[]
+      if (d) {
+        const rows = d.prepare("SELECT * FROM admin_profiles ORDER BY created_at DESC").all() as any[]
+        return rows.map((r) => ({ ...r, contact: r.email ?? null })) as AdminProfile[]
+      }
       // fallthrough to JSON fallback
     }
     const data = readJson()
