@@ -12,7 +12,7 @@ import { Logo } from "@/components/ui/logo"
 import { toast } from "sonner"
 
 interface LoginFormProps {
-  onLoginSuccess: (email: string, hybeId: string, needsPasswordChange: boolean) => void
+  onLoginSuccess: (contact: string, hybeId: string, needsPasswordChange: boolean) => void
 }
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
