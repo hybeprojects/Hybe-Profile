@@ -16,7 +16,7 @@ interface AdminProfile {
   id: number
   hybe_id: string
   full_name: string | null
-  email: string | null
+  contact: string | null
   is_registered: number | boolean
   created_at: string
 }
