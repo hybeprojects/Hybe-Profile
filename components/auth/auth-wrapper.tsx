@@ -22,7 +22,7 @@ export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
       if (json.authenticated) {
         if (json.session.requiresPasswordChange) {
           setAuthStep("change-password")
-          setUserEmail(json.session.email || "")
+          setUserContact(json.session.contact || "")
           setHybeId(json.session.hybeId)
         } else {
           onAuthSuccess()
