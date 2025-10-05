@@ -142,7 +142,7 @@ export function ProfileManager() {
               <TableRow>
                 <TableHead>HYBE ID</TableHead>
                 <TableHead>Full Name</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
               </TableRow>
