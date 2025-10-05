@@ -16,7 +16,7 @@ export type AdminProfile = {
   id: number
   hybe_id: string
   full_name: string | null
-  email: string | null
+  contact: string | null
   is_registered: number
   requires_password_change: number
   password_hash: string | null
