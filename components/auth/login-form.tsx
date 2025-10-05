@@ -121,15 +121,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 <p className="text-xs text-muted-foreground px-1">First time? Use default password: HYBEARMY2025</p>
               </div>
 
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-                <div className="flex items-center space-x-2 text-sm text-primary">
-                  <Shield className="h-4 w-4" />
-                  <span className="font-medium">Enhanced Security</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  We'll send a verification code to your registered email for added security.
-                </p>
-              </div>
 
               <Button
                 type="submit"
