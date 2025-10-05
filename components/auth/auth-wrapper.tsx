@@ -76,7 +76,7 @@ export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
   if (authStep === "change-password") {
     return (
       <ChangePassword
-        email={userEmail}
+        contact={userContact}
         hybeId={hybeId}
         onPasswordChangeSuccess={handlePasswordChangeSuccess}
         onBack={handleBackToLogin}
