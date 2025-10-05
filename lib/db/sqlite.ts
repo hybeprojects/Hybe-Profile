@@ -118,7 +118,7 @@ export const adminProfiles = {
     const data = readJson()
     return data.admin_profiles
   },
-  create(input: { hybe_id: string; full_name?: string; email?: string }): AdminProfile {
+  create(input: { hybe_id: string; full_name?: string; contact?: string }): AdminProfile {
     if (sqliteAvailable) {
       const d = ensureSqlite()
       if (d) {
@@ -126,9 +126,9 @@ export const adminProfiles = {
           .prepare(
             "INSERT INTO admin_profiles (hybe_id, full_name, email, is_registered, requires_password_change) VALUES (?, ?, ?, 0, 0)",
           )
-          .run(input.hybe_id, input.full_name ?? null, input.email ?? null)
+          .run(input.hybe_id, input.full_name ?? null, input.contact ?? null)
         const row = d.prepare("SELECT * FROM admin_profiles WHERE hybe_id = ?").get(input.hybe_id)
-        return row as AdminProfile
+        return { ...row, contact: row.email ?? null } as AdminProfile
       }
       // fallthrough to JSON fallback
     }
@@ -138,7 +138,7 @@ export const adminProfiles = {
       id: (data.admin_profiles.at(-1)?.id ?? 0) + 1,
       hybe_id: input.hybe_id,
       full_name: input.full_name ?? null,
-      email: input.email ?? null,
+      contact: input.contact ?? null,
       is_registered: 0,
       requires_password_change: 0,
       password_hash: null,
