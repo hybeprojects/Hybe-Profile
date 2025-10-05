@@ -37,7 +37,9 @@ function readJson(): { admin_profiles: AdminProfile[] } {
   try {
     const parsed = JSON.parse(raw)
     if (!parsed.admin_profiles) parsed.admin_profiles = []
-    return { admin_profiles: parsed.admin_profiles }
+    // map legacy email -> contact
+    const mapped = parsed.admin_profiles.map((p: any) => ({ ...p, contact: p.email ?? null }))
+    return { admin_profiles: mapped }
   } catch {
     return { admin_profiles: [] }
   }
