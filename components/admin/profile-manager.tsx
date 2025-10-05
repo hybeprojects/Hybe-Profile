@@ -152,7 +152,7 @@ export function ProfileManager() {
                 <TableRow key={profile.id}>
                   <TableCell className="font-mono">{profile.hybe_id}</TableCell>
                   <TableCell>{profile.full_name || "Not set"}</TableCell>
-                  <TableCell>{profile.email || "Not set"}</TableCell>
+                  <TableCell>{profile.contact || "Not set"}</TableCell>
                   <TableCell>
                     <Badge variant={(Number(profile.is_registered) === 1 || profile.is_registered) ? "default" : "secondary"}>
                       {(Number(profile.is_registered) === 1 || profile.is_registered) ? (
