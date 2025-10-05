@@ -11,7 +11,7 @@ interface AuthWrapperProps {
 
 export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
   const [authStep, setAuthStep] = useState<"login" | "change-password" | "loading">("login")
-  const [userEmail, setUserEmail] = useState("")
+  const [userContact, setUserContact] = useState("")
   const [hybeId, setHybeId] = useState("")
   const [requiresPasswordChange, setRequiresPasswordChange] = useState(false)
 
