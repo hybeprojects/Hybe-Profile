@@ -6,7 +6,7 @@ const SESSION_COOKIE = "hybe_session"
 // In absence of envs, fallback to a static dev secret. For production, set AUTH_SECRET.
 const SECRET = new TextEncoder().encode(process.env.AUTH_SECRET ?? "hybe-dev-secret")
 
-export type SessionPayload = { hybeId: string; email: string | null; requiresPasswordChange: boolean }
+export type SessionPayload = { hybeId: string; contact: string | null; requiresPasswordChange: boolean }
 
 export async function createSession(payload: SessionPayload) {
   const jwt = await new SignJWT(payload)
