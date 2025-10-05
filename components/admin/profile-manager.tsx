@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,9 +15,9 @@ import { Plus, Users, CheckCircle, XCircle, AlertCircle } from "lucide-react"
 interface AdminProfile {
   id: number
   hybe_id: string
-  display_name: string
+  full_name: string | null
   email: string | null
-  is_registered: boolean
+  is_registered: number | boolean
   created_at: string
 }
 
@@ -30,21 +29,15 @@ export function ProfileManager() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  const supabase = createClient()
-
   useEffect(() => {
     fetchProfiles()
   }, [])
 
   const fetchProfiles = async () => {
     try {
-      const { data, error } = await supabase
-        .from("hybe_admin_profiles")
-        .select("*")
-        .order("created_at", { ascending: false })
-
-      if (error) throw error
-      setProfiles(data || [])
+      const res = await fetch("/api/admin/profiles")
+      const json = await res.json()
+      setProfiles(json.data || [])
     } catch (err: any) {
       setError(err.message)
     }
@@ -57,13 +50,11 @@ export function ProfileManager() {
     setSuccess(null)
 
     try {
-      const { error } = await supabase.from("hybe_admin_profiles").insert({
-        hybe_id: newHybeId,
-        display_name: newDisplayName,
-        default_password: "HYBEARMY2025",
+      await fetch("/api/admin/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hybe_id: newHybeId, full_name: newDisplayName }),
       })
-
-      if (error) throw error
 
       setSuccess(`Profile ${newHybeId} added successfully`)
       setNewHybeId("")
@@ -150,7 +141,7 @@ export function ProfileManager() {
             <TableHeader>
               <TableRow>
                 <TableHead>HYBE ID</TableHead>
-                <TableHead>Display Name</TableHead>
+                <TableHead>Full Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
@@ -160,11 +151,11 @@ export function ProfileManager() {
               {profiles.map((profile) => (
                 <TableRow key={profile.id}>
                   <TableCell className="font-mono">{profile.hybe_id}</TableCell>
-                  <TableCell>{profile.display_name}</TableCell>
+                  <TableCell>{profile.full_name || "Not set"}</TableCell>
                   <TableCell>{profile.email || "Not set"}</TableCell>
                   <TableCell>
-                    <Badge variant={profile.is_registered ? "default" : "secondary"}>
-                      {profile.is_registered ? (
+                    <Badge variant={(Number(profile.is_registered) === 1 || profile.is_registered) ? "default" : "secondary"}>
+                      {(Number(profile.is_registered) === 1 || profile.is_registered) ? (
                         <>
                           <CheckCircle className="h-3 w-3 mr-1" /> Registered
                         </>

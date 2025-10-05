@@ -3,7 +3,6 @@
 import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,11 +11,10 @@ import { Loader2, Mail, Lock, Sparkles, AlertCircle, Shield } from "lucide-react
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface LoginFormProps {
-  onLoginSuccess: () => void
-  onOTPRequired: (hybeId: string, email: string) => void
+  onLoginSuccess: (email: string, hybeId: string, needsPasswordChange: boolean) => void
 }
 
-export function LoginForm({ onLoginSuccess, onOTPRequired }: LoginFormProps) {
+export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [hybeId, setHybeId] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -30,91 +28,21 @@ export function LoginForm({ onLoginSuccess, onOTPRequired }: LoginFormProps) {
     setLoginState("loading")
     setError(null)
 
-    const supabase = createClient()
-
     try {
-      // First, check if HYBE ID exists in admin profiles
-      const { data: adminProfile, error: adminError } = await supabase
-        .from("admin_profiles")
-        .select("*")
-        .eq("hybe_id", hybeId)
-        .single()
-
-      if (adminError || !adminProfile) {
-        throw new Error("Invalid HYBE ID. Please contact support.")
-      }
-
-      setLoginState("verifying")
-
-      if (adminProfile.email) {
-        // Send OTP to email first
-        const otpResponse = await fetch("/api/auth/send-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ hybeId }),
-        })
-
-        const otpResult = await otpResponse.json()
-
-        if (!otpResult.success) {
-          throw new Error(otpResult.error || "Failed to send verification code")
-        }
-
-        // Trigger OTP verification flow
-        onOTPRequired(hybeId, otpResult.email)
-        return
-      }
-
-      // Check if user is already registered
-      if (adminProfile.is_registered) {
-        // User exists, try to sign in with email
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: adminProfile.email || `${hybeId}@hybe.temp`,
-          password: password,
-        })
-
-        if (signInError) {
-          throw new Error("Invalid password. Please try again.")
-        }
-      } else {
-        // First time login with default password
-        if (password !== "HYBEARMY2025") {
-          throw new Error("Please use the default password: HYBEARMY2025")
-        }
-
-        // Create auth user account
-        const tempEmail = `${hybeId}@hybe.temp`
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
-          email: tempEmail,
-          password: password,
-          options: {
-            data: {
-              hybe_id: hybeId,
-              display_name: adminProfile.full_name,
-              is_default_password: true,
-            },
-            emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
-          },
-        })
-
-        if (signUpError) {
-          throw new Error(signUpError.message)
-        }
-
-        // Update admin profile
-        await supabase
-          .from("admin_profiles")
-          .update({
-            is_registered: true,
-            email: tempEmail,
-          })
-          .eq("hybe_id", hybeId)
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hybeId, password }),
+      })
+      const json = await res.json()
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Login failed")
       }
 
       setLoginState("success")
       setTimeout(() => {
-        onLoginSuccess()
-      }, 1000)
+        onLoginSuccess(json.email || "", json.hybeId, json.requiresPasswordChange)
+      }, 800)
     } catch (err: any) {
       setError(err.message)
       setLoginState("idle")
