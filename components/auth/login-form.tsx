@@ -57,8 +57,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     switch (loginState) {
       case "loading":
         return "Loading..."
-      case "verifying":
-        return "Sending verification..."
       case "success":
         return "Login success ✓"
       default:
