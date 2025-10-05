@@ -22,6 +22,16 @@ export async function POST() {
       adminProfiles.create({ hybe_id: hybeUnregistered, full_name: "New ARMY", contact: contactUnregistered })
     }
 
+    // Seed an additional test user (mimics regular user)
+    const hybeTest = "TESTUSER01"
+    const contactTest = null
+    existing = adminProfiles.getByHybeId(hybeTest)
+    if (!existing) {
+      const created = adminProfiles.create({ hybe_id: hybeTest, full_name: "Test User", contact: contactTest })
+      const hash = await bcrypt.hash("HYBEARMY2025", 10)
+      adminProfiles.markRegistered(created.hybe_id, hash, false)
+    }
+
     return NextResponse.json({ success: true, message: "Seed completed" })
   } catch (e) {
     console.error("Seed error:", e)
