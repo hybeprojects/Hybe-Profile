@@ -51,42 +51,52 @@ let sqliteDb: any = null
 function ensureSqlite() {
   if (sqliteDb) return sqliteDb
   const dbPath = path.join(dbDir, "app.sqlite")
-  const db = new BetterSqlite(dbPath)
-  db.pragma("journal_mode = WAL")
-  db
-    .prepare(
-      `CREATE TABLE IF NOT EXISTS admin_profiles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        hybe_id TEXT UNIQUE NOT NULL,
-        full_name TEXT,
-        email TEXT,
-        is_registered INTEGER NOT NULL DEFAULT 0,
-        requires_password_change INTEGER NOT NULL DEFAULT 0,
-        password_hash TEXT,
-        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-      )`,
-    )
-    .run()
-  db
-    .prepare(
-      `CREATE TRIGGER IF NOT EXISTS trg_admin_profiles_updated
-      AFTER UPDATE ON admin_profiles
-      BEGIN
-        UPDATE admin_profiles SET updated_at = datetime('now') WHERE id = NEW.id;
-      END;`,
-    )
-    .run()
-  sqliteDb = db
-  return db
+  try {
+    const db = new BetterSqlite(dbPath)
+    db.pragma("journal_mode = WAL")
+    db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS admin_profiles (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          hybe_id TEXT UNIQUE NOT NULL,
+          full_name TEXT,
+          email TEXT,
+          is_registered INTEGER NOT NULL DEFAULT 0,
+          requires_password_change INTEGER NOT NULL DEFAULT 0,
+          password_hash TEXT,
+          created_at TEXT NOT NULL DEFAULT (datetime('now')),
+          updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )`,
+      )
+      .run()
+    db
+      .prepare(
+        `CREATE TRIGGER IF NOT EXISTS trg_admin_profiles_updated
+        AFTER UPDATE ON admin_profiles
+        BEGIN
+          UPDATE admin_profiles SET updated_at = datetime('now') WHERE id = NEW.id;
+        END;`,
+      )
+      .run()
+    sqliteDb = db
+    return db
+  } catch (err) {
+    // If creating the native sqlite DB fails (missing native bindings), fall back to JSON store.
+    sqliteAvailable = false
+    sqliteDb = null
+    return null
+  }
 }
 
 export const adminProfiles = {
   getByHybeId(hybeId: string): AdminProfile | undefined {
     if (sqliteAvailable) {
       const d = ensureSqlite()
-      const row = d.prepare("SELECT * FROM admin_profiles WHERE hybe_id = ?").get(hybeId)
-      return row as AdminProfile | undefined
+      if (d) {
+        const row = d.prepare("SELECT * FROM admin_profiles WHERE hybe_id = ?").get(hybeId)
+        return row as AdminProfile | undefined
+      }
+      // fallthrough to JSON fallback
     }
     const data = readJson()
     return data.admin_profiles.find((p) => p.hybe_id === hybeId)
@@ -94,7 +104,8 @@ export const adminProfiles = {
   list(): AdminProfile[] {
     if (sqliteAvailable) {
       const d = ensureSqlite()
-      return d.prepare("SELECT * FROM admin_profiles ORDER BY created_at DESC").all() as AdminProfile[]
+      if (d) return d.prepare("SELECT * FROM admin_profiles ORDER BY created_at DESC").all() as AdminProfile[]
+      // fallthrough to JSON fallback
     }
     const data = readJson()
     return data.admin_profiles
@@ -102,13 +113,16 @@ export const adminProfiles = {
   create(input: { hybe_id: string; full_name?: string; email?: string }): AdminProfile {
     if (sqliteAvailable) {
       const d = ensureSqlite()
-      d
-        .prepare(
-          "INSERT INTO admin_profiles (hybe_id, full_name, email, is_registered, requires_password_change) VALUES (?, ?, ?, 0, 0)",
-        )
-        .run(input.hybe_id, input.full_name ?? null, input.email ?? null)
-      const row = d.prepare("SELECT * FROM admin_profiles WHERE hybe_id = ?").get(input.hybe_id)
-      return row as AdminProfile
+      if (d) {
+        d
+          .prepare(
+            "INSERT INTO admin_profiles (hybe_id, full_name, email, is_registered, requires_password_change) VALUES (?, ?, ?, 0, 0)",
+          )
+          .run(input.hybe_id, input.full_name ?? null, input.email ?? null)
+        const row = d.prepare("SELECT * FROM admin_profiles WHERE hybe_id = ?").get(input.hybe_id)
+        return row as AdminProfile
+      }
+      // fallthrough to JSON fallback
     }
     const data = readJson()
     const now = new Date().toISOString()
@@ -130,12 +144,15 @@ export const adminProfiles = {
   markRegistered(hybeId: string, passwordHash: string, requiresChange: boolean) {
     if (sqliteAvailable) {
       const d = ensureSqlite()
-      d
-        .prepare(
-          "UPDATE admin_profiles SET is_registered = 1, requires_password_change = ?, password_hash = ? WHERE hybe_id = ?",
-        )
-        .run(requiresChange ? 1 : 0, passwordHash, hybeId)
-      return
+      if (d) {
+        d
+          .prepare(
+            "UPDATE admin_profiles SET is_registered = 1, requires_password_change = ?, password_hash = ? WHERE hybe_id = ?",
+          )
+          .run(requiresChange ? 1 : 0, passwordHash, hybeId)
+        return
+      }
+      // fallthrough to JSON fallback
     }
     const data = readJson()
     const idx = data.admin_profiles.findIndex((p) => p.hybe_id === hybeId)
@@ -150,10 +167,13 @@ export const adminProfiles = {
   updatePassword(hybeId: string, passwordHash: string) {
     if (sqliteAvailable) {
       const d = ensureSqlite()
-      d
-        .prepare("UPDATE admin_profiles SET password_hash = ?, requires_password_change = 0 WHERE hybe_id = ?")
-        .run(passwordHash, hybeId)
-      return
+      if (d) {
+        d
+          .prepare("UPDATE admin_profiles SET password_hash = ?, requires_password_change = 0 WHERE hybe_id = ?")
+          .run(passwordHash, hybeId)
+        return
+      }
+      // fallthrough to JSON fallback
     }
     const data = readJson()
     const idx = data.admin_profiles.findIndex((p) => p.hybe_id === hybeId)
