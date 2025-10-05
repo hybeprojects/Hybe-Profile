@@ -64,7 +64,7 @@ function ensureSqlite() {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           hybe_id TEXT UNIQUE NOT NULL,
           full_name TEXT,
-          email TEXT,
+          contact TEXT,
           is_registered INTEGER NOT NULL DEFAULT 0,
           requires_password_change INTEGER NOT NULL DEFAULT 0,
           password_hash TEXT,
@@ -99,7 +99,7 @@ export const adminProfiles = {
       if (d) {
         const row = d.prepare("SELECT * FROM admin_profiles WHERE hybe_id = ?").get(hybeId)
         if (!row) return undefined
-        return { ...row, contact: row.email ?? null } as AdminProfile
+        return { ...row, contact: row.contact ?? null } as AdminProfile
       }
       // fallthrough to JSON fallback
     }
@@ -111,7 +111,7 @@ export const adminProfiles = {
       const d = ensureSqlite()
       if (d) {
         const rows = d.prepare("SELECT * FROM admin_profiles ORDER BY created_at DESC").all() as any[]
-        return rows.map((r) => ({ ...r, contact: r.email ?? null })) as AdminProfile[]
+        return rows.map((r) => ({ ...r, contact: r.contact ?? null })) as AdminProfile[]
       }
       // fallthrough to JSON fallback
     }
@@ -124,11 +124,11 @@ export const adminProfiles = {
       if (d) {
         d
           .prepare(
-            "INSERT INTO admin_profiles (hybe_id, full_name, email, is_registered, requires_password_change) VALUES (?, ?, ?, 0, 0)",
+            "INSERT INTO admin_profiles (hybe_id, full_name, contact, is_registered, requires_password_change) VALUES (?, ?, ?, 0, 0)",
           )
           .run(input.hybe_id, input.full_name ?? null, input.contact ?? null)
         const row = d.prepare("SELECT * FROM admin_profiles WHERE hybe_id = ?").get(input.hybe_id)
-        return { ...row, contact: row.email ?? null } as AdminProfile
+        return { ...row, contact: row.contact ?? null } as AdminProfile
       }
       // fallthrough to JSON fallback
     }
