@@ -322,7 +322,7 @@ export function UserProfile() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-medium">Email Notifications</h4>
+                    <h4 className="font-medium">Notifications</h4>
                     <p className="text-sm text-muted-foreground">Receive updates about new content and events</p>
                   </div>
                   <Button variant="outline" size="sm">
