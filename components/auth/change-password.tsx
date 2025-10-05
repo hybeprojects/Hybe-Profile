@@ -37,24 +37,16 @@ export function ChangePassword() {
       return
     }
 
-    const supabase = createClient()
-
     try {
-      // Update password
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: newPassword,
+      // Call server API to change password
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
       })
-
-      if (updateError) {
-        throw new Error(updateError.message)
-      }
-
-      // Update profile to mark password as changed
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        await supabase.from("hybe_profiles").update({ is_default_password: false }).eq("id", user.id)
+      const json = await res.json()
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Failed to update password')
       }
 
       setSuccess(true)
