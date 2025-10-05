@@ -20,7 +20,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [loginState, setLoginState] = useState<"idle" | "loading" | "verifying" | "success">("idle")
+  const [loginState, setLoginState] = useState<"idle" | "loading" | "success">("idle")
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
