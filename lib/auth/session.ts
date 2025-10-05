@@ -37,7 +37,7 @@ export async function getSession(): Promise<SessionPayload | null> {
     const { payload } = await jwtVerify(token, SECRET)
     return {
       hybeId: String(payload.hybeId),
-      email: (payload.email as string) ?? null,
+      contact: (payload.contact as string) ?? null,
       requiresPasswordChange: Boolean(payload.requiresPasswordChange),
     }
   } catch {
