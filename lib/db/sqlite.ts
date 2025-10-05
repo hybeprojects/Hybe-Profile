@@ -1,6 +1,5 @@
 import fs from "fs"
 import path from "path"
-import fs from "fs"
 
 // Attempt to load better-sqlite3. If not available (build scripts blocked), fallback to JSON store.
 let sqliteAvailable = false as boolean
@@ -25,25 +24,37 @@ export type AdminProfile = {
   updated_at: string
 }
 
+export type OTPCode = {
+  id: number
+  hybe_id: string
+  code: string
+  expires_at: string
+  used: boolean
+  failed_attempts: number
+  created_at: string
+  updated_at: string
+}
+
 const dbDir = path.join(process.cwd(), "db")
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true })
 
 // JSON fallback helpers
 const jsonPath = path.join(dbDir, "app.json")
-function readJson(): { admin_profiles: AdminProfile[] } {
+function readJson(): { admin_profiles: AdminProfile[]; otp_codes: OTPCode[] } {
   if (!fs.existsSync(jsonPath)) {
-    fs.writeFileSync(jsonPath, JSON.stringify({ admin_profiles: [] }, null, 2))
+    fs.writeFileSync(jsonPath, JSON.stringify({ admin_profiles: [], otp_codes: [] }, null, 2))
   }
   const raw = fs.readFileSync(jsonPath, "utf-8")
   try {
     const parsed = JSON.parse(raw)
     if (!parsed.admin_profiles) parsed.admin_profiles = []
+    if (!parsed.otp_codes) parsed.otp_codes = []
     return parsed
   } catch {
-    return { admin_profiles: [] }
+    return { admin_profiles: [], otp_codes: [] }
   }
 }
-function writeJson(data: { admin_profiles: AdminProfile[] }) {
+function writeJson(data: { admin_profiles: AdminProfile[]; otp_codes: OTPCode[] }) {
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2))
 }
 
@@ -78,6 +89,32 @@ function ensureSqlite() {
       END;`,
     )
     .run()
+
+  // OTP codes table
+  db
+    .prepare(
+      `CREATE TABLE IF NOT EXISTS otp_codes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        hybe_id TEXT NOT NULL,
+        code TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        used INTEGER NOT NULL DEFAULT 0,
+        failed_attempts INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )`,
+    )
+    .run()
+  db
+    .prepare(
+      `CREATE TRIGGER IF NOT EXISTS trg_otp_codes_updated
+      AFTER UPDATE ON otp_codes
+      BEGIN
+        UPDATE otp_codes SET updated_at = datetime('now') WHERE id = NEW.id;
+      END;`,
+    )
+    .run()
+
   sqliteDb = db
   return db
 }
@@ -162,6 +199,78 @@ export const adminProfiles = {
       data.admin_profiles[idx].password_hash = passwordHash
       data.admin_profiles[idx].requires_password_change = 0
       data.admin_profiles[idx].updated_at = new Date().toISOString()
+      writeJson(data)
+    }
+  },
+}
+
+export const otpStore = {
+  async create(otp: { hybe_id: string; code: string; expires_at: string; used?: boolean; failed_attempts?: number }) {
+    if (sqliteAvailable) {
+      const d = ensureSqlite()
+      d
+        .prepare(
+          "INSERT INTO otp_codes (hybe_id, code, expires_at, used, failed_attempts) VALUES (?, ?, ?, ?, ?)",
+        )
+        .run(otp.hybe_id, otp.code, otp.expires_at, otp.used ? 1 : 0, otp.failed_attempts ?? 0)
+      const row = d.prepare("SELECT * FROM otp_codes WHERE id = last_insert_rowid() LIMIT 1").get()
+      return row as OTPCode
+    }
+
+    const data = readJson()
+    const now = new Date().toISOString()
+    const newItem: OTPCode = {
+      id: (data.otp_codes.at(-1)?.id ?? 0) + 1,
+      hybe_id: otp.hybe_id,
+      code: otp.code,
+      expires_at: otp.expires_at,
+      used: Boolean(otp.used ?? false),
+      failed_attempts: otp.failed_attempts ?? 0,
+      created_at: now,
+      updated_at: now,
+    }
+    data.otp_codes.unshift(newItem)
+    writeJson(data)
+    return newItem
+  },
+  getLatestValid(hybeId: string): OTPCode | undefined {
+    if (sqliteAvailable) {
+      const d = ensureSqlite()
+      const row = d
+        .prepare(
+          "SELECT * FROM otp_codes WHERE hybe_id = ? AND used = 0 AND expires_at > datetime('now') ORDER BY created_at DESC LIMIT 1",
+        )
+        .get(hybeId)
+      return row as OTPCode | undefined
+    }
+    const data = readJson()
+    return data.otp_codes.find((o) => o.hybe_id === hybeId && !o.used && new Date(o.expires_at) > new Date())
+  },
+  markUsed(id: number) {
+    if (sqliteAvailable) {
+      const d = ensureSqlite()
+      d.prepare("UPDATE otp_codes SET used = 1 WHERE id = ?").run(id)
+      return
+    }
+    const data = readJson()
+    const idx = data.otp_codes.findIndex((o) => o.id === id)
+    if (idx !== -1) {
+      data.otp_codes[idx].used = true
+      data.otp_codes[idx].updated_at = new Date().toISOString()
+      writeJson(data)
+    }
+  },
+  incrementFailedAttempts(id: number) {
+    if (sqliteAvailable) {
+      const d = ensureSqlite()
+      d.prepare("UPDATE otp_codes SET failed_attempts = failed_attempts + 1 WHERE id = ?").run(id)
+      return
+    }
+    const data = readJson()
+    const idx = data.otp_codes.findIndex((o) => o.id === id)
+    if (idx !== -1) {
+      data.otp_codes[idx].failed_attempts += 1
+      data.otp_codes[idx].updated_at = new Date().toISOString()
       writeJson(data)
     }
   },

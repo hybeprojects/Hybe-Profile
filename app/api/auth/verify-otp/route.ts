@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createServerClient } from "@/lib/supabase/server"
-import { NextRequest, NextResponse } from "next/server"
+import { otpStore } from "@/lib/db/sqlite"
 import { rateLimiter } from "@/lib/rate-limiter"
 
 export async function POST(request: NextRequest) {
@@ -8,31 +7,17 @@ export async function POST(request: NextRequest) {
     const { hybeId, otp } = await request.json()
 
     const ip = request.ip ?? "127.0.0.1"
-    const { success, limit, remaining, reset } = await rateLimiter.limit(
-      `verify_otp_${ip}`,
-    )
+    const { success } = await rateLimiter.limit(`verify_otp_${ip}`)
 
     if (!success) {
-      return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
-        { status: 429 },
-      )
+      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 })
     }
 
-    const supabase = createServerClient()
+    if (!hybeId || !otp) return NextResponse.json({ error: "Missing parameters" }, { status: 400 })
 
-    // Get the latest OTP record for the user that is not used and not expired
-    const { data: otpRecord, error: otpError } = await supabase
-      .from("otp_codes")
-      .select("*")
-      .eq("hybe_id", hybeId)
-      .eq("used", false)
-      .gt("expires_at", new Date().toISOString())
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single()
+    const otpRecord = otpStore.getLatestValid(String(hybeId).toUpperCase())
 
-    if (otpError || !otpRecord) {
+    if (!otpRecord) {
       return NextResponse.json({ error: "No valid OTP found for this user." }, { status: 400 })
     }
 
@@ -40,17 +25,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Too many failed attempts. Please request a new OTP." }, { status: 400 })
     }
 
-    if (otpRecord.code !== otp) {
+    if (otpRecord.code !== String(otp)) {
       // Increment failed attempts
-      await supabase
-        .from("otp_codes")
-        .update({ failed_attempts: otpRecord.failed_attempts + 1 })
-        .eq("id", otpRecord.id)
+      otpStore.incrementFailedAttempts(otpRecord.id)
       return NextResponse.json({ error: "Invalid OTP." }, { status: 400 })
     }
 
     // Mark OTP as used
-    await supabase.from("otp_codes").update({ used: true }).eq("id", otpRecord.id)
+    otpStore.markUsed(otpRecord.id)
 
     return NextResponse.json({ success: true, message: "OTP verified successfully" })
   } catch (error) {
