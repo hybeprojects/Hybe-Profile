@@ -33,8 +33,8 @@ export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
     checkAuthStatus()
   }, [])
 
-  const handleLoginSuccess = (email: string, id: string, needsPasswordChange: boolean) => {
-    setUserEmail(email)
+  const handleLoginSuccess = (contact: string, id: string, needsPasswordChange: boolean) => {
+    setUserContact(contact)
     setHybeId(id)
     setRequiresPasswordChange(needsPasswordChange)
 
