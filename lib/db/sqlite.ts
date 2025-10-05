@@ -98,7 +98,8 @@ export const adminProfiles = {
       const d = ensureSqlite()
       if (d) {
         const row = d.prepare("SELECT * FROM admin_profiles WHERE hybe_id = ?").get(hybeId)
-        return row as AdminProfile | undefined
+        if (!row) return undefined
+        return { ...row, contact: row.email ?? null } as AdminProfile
       }
       // fallthrough to JSON fallback
     }
