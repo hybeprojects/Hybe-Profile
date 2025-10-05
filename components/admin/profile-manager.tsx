@@ -16,7 +16,7 @@ interface AdminProfile {
   id: number
   hybe_id: string
   full_name: string | null
-  email: string | null
+  contact: string | null
   is_registered: number | boolean
   created_at: string
 }
@@ -142,7 +142,7 @@ export function ProfileManager() {
               <TableRow>
                 <TableHead>HYBE ID</TableHead>
                 <TableHead>Full Name</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
               </TableRow>
@@ -152,7 +152,7 @@ export function ProfileManager() {
                 <TableRow key={profile.id}>
                   <TableCell className="font-mono">{profile.hybe_id}</TableCell>
                   <TableCell>{profile.full_name || "Not set"}</TableCell>
-                  <TableCell>{profile.email || "Not set"}</TableCell>
+                  <TableCell>{profile.contact || "Not set"}</TableCell>
                   <TableCell>
                     <Badge variant={(Number(profile.is_registered) === 1 || profile.is_registered) ? "default" : "secondary"}>
                       {(Number(profile.is_registered) === 1 || profile.is_registered) ? (

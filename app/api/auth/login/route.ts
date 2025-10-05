@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import { adminProfiles } from "@/lib/db/sqlite"
 import { createSession } from "@/lib/auth/session"
 import bcrypt from "bcryptjs"
-import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
   try {
@@ -21,8 +20,8 @@ export async function POST(req: Request) {
       }
       const hash = await bcrypt.hash(password, 10)
       adminProfiles.markRegistered(profile.hybe_id, hash, true)
-      await createSession({ hybeId: profile.hybe_id, email: profile.email, requiresPasswordChange: true })
-      return NextResponse.json({ success: true, email: profile.email, hybeId: profile.hybe_id, requiresPasswordChange: true })
+      await createSession({ hybeId: profile.hybe_id, contact: profile.contact, requiresPasswordChange: true })
+      return NextResponse.json({ success: true, contact: profile.contact, hybeId: profile.hybe_id, requiresPasswordChange: true })
     }
 
     if (!profile.password_hash) {
@@ -33,8 +32,8 @@ export async function POST(req: Request) {
     if (!valid) return NextResponse.json({ error: "Invalid password" }, { status: 400 })
 
     const requiresPasswordChange = profile.requires_password_change === 1
-    await createSession({ hybeId: profile.hybe_id, email: profile.email, requiresPasswordChange })
-    return NextResponse.json({ success: true, email: profile.email, hybeId: profile.hybe_id, requiresPasswordChange })
+    await createSession({ hybeId: profile.hybe_id, contact: profile.contact, requiresPasswordChange })
+    return NextResponse.json({ success: true, contact: profile.contact, hybeId: profile.hybe_id, requiresPasswordChange })
   } catch (e) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }

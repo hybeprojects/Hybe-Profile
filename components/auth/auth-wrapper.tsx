@@ -11,7 +11,7 @@ interface AuthWrapperProps {
 
 export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
   const [authStep, setAuthStep] = useState<"login" | "change-password" | "loading">("login")
-  const [userEmail, setUserEmail] = useState("")
+  const [userContact, setUserContact] = useState("")
   const [hybeId, setHybeId] = useState("")
   const [requiresPasswordChange, setRequiresPasswordChange] = useState(false)
 
@@ -22,7 +22,7 @@ export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
       if (json.authenticated) {
         if (json.session.requiresPasswordChange) {
           setAuthStep("change-password")
-          setUserEmail(json.session.email || "")
+          setUserContact(json.session.contact || "")
           setHybeId(json.session.hybeId)
         } else {
           onAuthSuccess()
@@ -33,8 +33,8 @@ export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
     checkAuthStatus()
   }, [])
 
-  const handleLoginSuccess = (email: string, id: string, needsPasswordChange: boolean) => {
-    setUserEmail(email)
+  const handleLoginSuccess = (contact: string, id: string, needsPasswordChange: boolean) => {
+    setUserContact(contact)
     setHybeId(id)
     setRequiresPasswordChange(needsPasswordChange)
 
@@ -76,7 +76,7 @@ export function AuthWrapper({ onAuthSuccess }: AuthWrapperProps) {
   if (authStep === "change-password") {
     return (
       <ChangePassword
-        email={userEmail}
+        contact={userContact}
         hybeId={hybeId}
         onPasswordChangeSuccess={handlePasswordChangeSuccess}
         onBack={handleBackToLogin}

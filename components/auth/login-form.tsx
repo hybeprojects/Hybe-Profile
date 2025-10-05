@@ -12,7 +12,7 @@ import { Logo } from "@/components/ui/logo"
 import { toast } from "sonner"
 
 interface LoginFormProps {
-  onLoginSuccess: (email: string, hybeId: string, needsPasswordChange: boolean) => void
+  onLoginSuccess: (contact: string, hybeId: string, needsPasswordChange: boolean) => void
 }
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
@@ -20,7 +20,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [loginState, setLoginState] = useState<"idle" | "loading" | "verifying" | "success">("idle")
+  const [loginState, setLoginState] = useState<"idle" | "loading" | "success">("idle")
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +43,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       setLoginState("success")
       toast.success("Login successful")
       setTimeout(() => {
-        onLoginSuccess(json.email || "", json.hybeId, json.requiresPasswordChange)
+        onLoginSuccess(json.contact || "", json.hybeId, json.requiresPasswordChange)
       }, 800)
     } catch (err: any) {
       toast.error(err.message || "Login failed")
@@ -57,8 +57,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     switch (loginState) {
       case "loading":
         return "Loading..."
-      case "verifying":
-        return "Sending verification..."
       case "success":
         return "Login success ✓"
       default:
@@ -123,15 +121,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 <p className="text-xs text-muted-foreground px-1">First time? Use default password: HYBEARMY2025</p>
               </div>
 
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-                <div className="flex items-center space-x-2 text-sm text-primary">
-                  <Shield className="h-4 w-4" />
-                  <span className="font-medium">Enhanced Security</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  We'll send a verification code to your registered email for added security.
-                </p>
-              </div>
 
               <Button
                 type="submit"
