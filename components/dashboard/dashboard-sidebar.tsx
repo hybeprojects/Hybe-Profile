@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, User, Play, Calendar, ShoppingBag, Trophy, Settings, Building2, X } from "lucide-react"
+import { Home, User, Play, Calendar, ShoppingBag, Trophy, Settings, Building2, X, MessageCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
