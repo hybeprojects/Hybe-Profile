@@ -5,6 +5,11 @@ import { jwtVerify } from "jose"
 const SESSION_COOKIE = "hybe_session"
 const SECRET = new TextEncoder().encode(process.env.AUTH_SECRET ?? "hybe-dev-secret")
 
+function acceptsRSC(req: NextRequest) {
+  const accept = req.headers.get("accept") || ""
+  return accept.includes("text/x-component") || accept.includes("application/json")
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -15,6 +20,10 @@ export async function middleware(request: NextRequest) {
 
   const token = request.cookies.get(SESSION_COOKIE)?.value
   if (!token) {
+    // API and RSC fetches should receive a 401 JSON response instead of an HTML redirect
+    if (pathname.startsWith("/api/admin") || acceptsRSC(request)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     const url = request.nextUrl.clone()
     url.pathname = "/admin/login"
     return NextResponse.redirect(url)
@@ -24,6 +33,9 @@ export async function middleware(request: NextRequest) {
     await jwtVerify(token, SECRET)
     return NextResponse.next()
   } catch {
+    if (pathname.startsWith("/api/admin") || acceptsRSC(request)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     const url = request.nextUrl.clone()
     url.pathname = "/admin/login"
     return NextResponse.redirect(url)
