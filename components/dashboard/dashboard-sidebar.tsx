@@ -16,6 +16,7 @@ const navigationItems = [
   { id: "overview", label: "Dashboard", icon: Home },
   { id: "profile", label: "ARMY Profile", icon: User, badge: "VIP" },
   { id: "content", label: "Exclusive Content", icon: Play, badge: "New" },
+  { id: "feed", label: "Fan Feed", icon: MessageCircle },
   { id: "events", label: "Events & Concerts", icon: Calendar },
   { id: "merch", label: "Merch & Collectibles", icon: ShoppingBag },
   { id: "rewards", label: "Rewards", icon: Trophy, badge: "12" },
