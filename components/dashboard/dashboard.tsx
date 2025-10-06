@@ -28,6 +28,8 @@ export function Dashboard() {
         return <ContentHub />
       case "events":
         return <EventsConcerts />
+      case "feed":
+        return <FanFeed />
       case "merch":
         return <MerchCollectibles />
       case "rewards":
