@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Heart, MessageCircle, Share2, ImageIcon, Poll, Sparkles, Send, ThumbsUp } from "lucide-react"
+import { Heart, MessageCircle, Share2, ImageIcon, ListChecks, Sparkles, Send, ThumbsUp } from "lucide-react"
 
 type FeedPost = {
   id: number
