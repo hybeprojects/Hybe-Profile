@@ -13,6 +13,11 @@ function acceptsRSC(req: NextRequest) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Allow unauthenticated access to the admin login page (avoid redirect loop)
+  if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
+    return NextResponse.next()
+  }
+
   // Only protect /admin and /api/admin routes
   if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/admin")) {
     return NextResponse.next()
