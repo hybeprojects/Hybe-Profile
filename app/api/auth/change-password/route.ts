@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import { getSession } from "@/lib/auth/session"
 import { adminProfiles } from "@/lib/db/sqlite"
 import bcrypt from "bcryptjs"
-import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
   try {
