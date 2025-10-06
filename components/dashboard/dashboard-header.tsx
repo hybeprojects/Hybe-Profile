@@ -11,6 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { NotificationsCenter } from "@/components/dashboard/notifications-center"
 
 interface DashboardHeaderProps {
   onMenuClick?: () => void
@@ -39,12 +41,19 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         {/* Actions */}
         <div className="flex items-center space-x-1 sm:space-x-2">
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative p-2 h-9 w-9 sm:h-10 sm:w-10">
-            <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-            <Badge className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary">
-              3
-            </Badge>
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="relative p-2 h-9 w-9 sm:h-10 sm:w-10">
+                <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+                <Badge className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary">
+                  3
+                </Badge>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full sm:max-w-md">
+              <NotificationsCenter />
+            </SheetContent>
+          </Sheet>
 
           {/* User menu */}
           <DropdownMenu>
