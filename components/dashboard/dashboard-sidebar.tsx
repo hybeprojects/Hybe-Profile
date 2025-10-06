@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, User, Play, Calendar, ShoppingBag, Trophy, Settings, Building2, X } from "lucide-react"
+import { Home, User, Play, Calendar, ShoppingBag, Trophy, Settings, Building2, X, MessageCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +16,7 @@ const navigationItems = [
   { id: "overview", label: "Dashboard", icon: Home },
   { id: "profile", label: "ARMY Profile", icon: User, badge: "VIP" },
   { id: "content", label: "Exclusive Content", icon: Play, badge: "New" },
+  { id: "feed", label: "Fan Feed", icon: MessageCircle },
   { id: "events", label: "Events & Concerts", icon: Calendar },
   { id: "merch", label: "Merch & Collectibles", icon: ShoppingBag },
   { id: "rewards", label: "Rewards", icon: Trophy, badge: "12" },

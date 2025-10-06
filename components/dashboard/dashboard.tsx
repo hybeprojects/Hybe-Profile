@@ -12,6 +12,7 @@ import { MerchCollectibles } from "./merch-collectibles"
 import { RewardsGamification } from "./rewards-gamification"
 import { HybeHeader } from "@/components/layout/hybe-header"
 import { HybeFooter } from "@/components/layout/hybe-footer"
+import { FanFeed } from "./fan-feed"
 
 export function Dashboard() {
   const [activeSection, setActiveSection] = useState("overview")
@@ -27,6 +28,8 @@ export function Dashboard() {
         return <ContentHub />
       case "events":
         return <EventsConcerts />
+      case "feed":
+        return <FanFeed />
       case "merch":
         return <MerchCollectibles />
       case "rewards":
