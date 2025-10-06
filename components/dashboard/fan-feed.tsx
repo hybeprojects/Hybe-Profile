@@ -105,7 +105,7 @@ export function FanFeed() {
                     <ImageIcon className="h-4 w-4 mr-1" /> Media
                   </Button>
                   <Button variant="ghost" size="sm" className="h-8 px-2">
-                    <Poll className="h-4 w-4 mr-1" /> Poll
+                    <ListChecks className="h-4 w-4 mr-1" /> Poll
                   </Button>
                 </div>
                 <Button onClick={addPost} className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
