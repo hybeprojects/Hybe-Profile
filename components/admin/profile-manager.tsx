@@ -25,6 +25,9 @@ export function ProfileManager() {
   const [profiles, setProfiles] = useState<AdminProfile[]>([])
   const [newHybeId, setNewHybeId] = useState("")
   const [newDisplayName, setNewDisplayName] = useState("")
+  const [setInitialPassword, setSetInitialPassword] = useState(false)
+  const [initialPassword, setInitialPasswordValue] = useState("")
+  const [requirePasswordChange, setRequirePasswordChange] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -50,15 +53,35 @@ export function ProfileManager() {
     setSuccess(null)
 
     try {
-      await fetch("/api/admin/profiles", {
+      if (setInitialPassword && initialPassword.length < 8) {
+        setError("Initial password must be at least 8 characters")
+        setIsLoading(false)
+        return
+      }
+
+      const payload: any = { hybe_id: newHybeId, full_name: newDisplayName }
+      if (setInitialPassword) {
+        payload.password = initialPassword
+        payload.requiresPasswordChange = requirePasswordChange
+      }
+
+      const res = await fetch("/api/admin/profiles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hybe_id: newHybeId, full_name: newDisplayName }),
+        body: JSON.stringify(payload),
       })
+
+      if (!res.ok) {
+        const json = await res.json()
+        throw new Error(json?.error || "Failed to add profile")
+      }
 
       setSuccess(`Profile ${newHybeId} added successfully`)
       setNewHybeId("")
       setNewDisplayName("")
+      setSetInitialPassword(false)
+      setInitialPasswordValue("")
+      setRequirePasswordChange(true)
       fetchProfiles()
     } catch (err: any) {
       setError(err.message)
@@ -121,6 +144,52 @@ export function ProfileManager() {
                   disabled={isLoading}
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Input
+                  id="set-initial-password"
+                  type="checkbox"
+                  checked={setInitialPassword}
+                  onChange={(e) => setSetInitialPassword(e.target.checked)}
+                  disabled={isLoading}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="set-initial-password" className="m-0">Set initial password now</Label>
+              </div>
+
+              {setInitialPassword && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="initial-password">Initial Password</Label>
+                    <Input
+                      id="initial-password"
+                      type="password"
+                      placeholder="Enter initial password (min 8 chars)"
+                      value={initialPassword}
+                      onChange={(e) => setInitialPasswordValue(e.target.value)}
+                      disabled={isLoading}
+                    />
+                    <p className="text-xs text-muted-foreground">If set, the account will be registered immediately and may require the user to change their password on first login.</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="require-change">Require password change on first login</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        id="require-change"
+                        type="checkbox"
+                        checked={requirePasswordChange}
+                        onChange={(e) => setRequirePasswordChange(e.target.checked)}
+                        disabled={isLoading}
+                        className="h-4 w-4"
+                      />
+                      <span className="text-sm text-muted-foreground">User will be prompted to set a new password at first login</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <Button type="submit" disabled={isLoading}>
